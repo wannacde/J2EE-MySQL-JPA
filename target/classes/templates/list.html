@@ -1,13 +1,24 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8" />
     <title>Book List</title>
     <link rel="stylesheet" th:href="@{/css/style.css}" />
 </head>
 <body>
-<h1>Books</h1>
-<a th:href="@{/books/new}">Add new book</a>
+<div style="display:flex; justify-content:space-between; align-items:center;">
+    <h1>Books</h1>
+    <div>
+        <span sec:authentication="name">User</span>
+        (<span sec:authentication="principal.authorities">ROLES</span>)
+        &nbsp;
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button type="submit">Logout</button>
+        </form>
+    </div>
+</div>
+<a th:href="@{/books/new}" sec:authorize="hasRole('ADMIN')">Add new book</a>
 <table border="1" cellspacing="0" cellpadding="5">
     <thead>
     <tr>
@@ -15,7 +26,7 @@
         <th>Title</th>
         <th>Author</th>
         <th>Price</th>
-        <th>Actions</th>
+        <th sec:authorize="hasRole('ADMIN')">Actions</th>
     </tr>
     </thead>
     <tbody>
@@ -24,10 +35,13 @@
         <td th:text="${book.title}">Title</td>
         <td th:text="${book.author}">Author</td>
         <td th:text="${book.price}">0.0</td>
-        <td>
+        <td sec:authorize="hasRole('ADMIN')">
             <a th:href="@{/books/edit/{id}(id=${book.id})}">Edit</a> |
-            <a th:href="@{/books/delete/{id}(id=${book.id})}"
-               onclick="return confirm('Are you sure?');">Delete</a>
+            <form th:action="@{/books/delete/{id}(id=${book.id})}" method="post"
+                  style="display:inline;"
+                  onsubmit="return confirm('Are you sure?');">
+                <button type="submit" style="background:none;border:none;color:blue;cursor:pointer;text-decoration:underline;">Delete</button>
+            </form>
         </td>
     </tr>
     </tbody>
